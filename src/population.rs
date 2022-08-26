@@ -1,7 +1,7 @@
-use std::{ vec::Drain, ops::{Range, RangeFrom},};
+use std::{ vec::Drain, ops::{RangeFrom},};
 
 use rand::{rngs::ThreadRng, seq::SliceRandom, Rng};
-use crate::member::{Member, self};
+use crate::member::{Member};
 
 #[derive(Clone)]
 pub struct Population{
@@ -10,12 +10,12 @@ pub struct Population{
 
 impl Population {
     
-    pub fn new(size: usize, mut rng: &mut ThreadRng) -> Self{
+    pub fn new(size: usize, rng: &mut ThreadRng) -> Self{
         Self {
             members: 
                 (0..size)
                     .map(|_| { 
-                        Member::new(&mut rng)
+                        Member::new(rng)
                     })
                     .collect::<Vec<_>>()
             }
@@ -36,9 +36,9 @@ impl Population {
    
    
 
-    fn breed(p1: Member,p2: Member, mut rng: &mut ThreadRng) -> Member{
+    fn breed(p1: Member,p2: Member, rng: &mut ThreadRng) -> Member{
         
-        
+
         let mut child = Member::from([0;10]);
 
         

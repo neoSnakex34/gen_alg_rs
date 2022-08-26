@@ -1,4 +1,4 @@
-use rand::{Rng, seq::{SliceRandom, index}, rngs::ThreadRng};
+
 use gen_alg::{population::Population, member::Member};
 
 fn main() {

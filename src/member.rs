@@ -42,11 +42,11 @@ impl Member{
                         .genes
                         .iter()
                     )
-                .map(|(m_el, t_el)| (*m_el as isize - *t_el as isize).abs() as usize)
+                .map(|(m_el, t_el)| (*m_el as isize - *t_el as isize).unsigned_abs())
             .sum()
     }
 
-    pub fn mutate(&mut self, mutation_rate: f32, mut rng: &mut ThreadRng){
+    pub fn mutate(&mut self, mutation_rate: f32, rng: &mut ThreadRng){
 
         self
             .genes
