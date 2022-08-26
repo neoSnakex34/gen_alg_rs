@@ -1,4 +1,5 @@
-use std::{ vec::Drain, ops::{RangeFrom},};
+use core::panic;
+use std::num::ParseIntError;
 
 use rand::{rngs::ThreadRng, seq::SliceRandom, Rng};
 use crate::member::{Member};
@@ -6,6 +7,7 @@ use crate::member::{Member};
 #[derive(Clone)]
 pub struct Population{
     members: Vec<Member>,
+    fitness_sorted: bool,
 }
 
 impl Population {
@@ -17,7 +19,9 @@ impl Population {
                     .map(|_| { 
                         Member::new(rng)
                     })
-                    .collect::<Vec<_>>()
+                    .collect::<Vec<_>>(),
+
+            fitness_sorted: false
             }
 
     }
@@ -26,12 +30,13 @@ impl Population {
         &mut self.members
     }
     
-    pub fn drain_pop(&mut self, range: RangeFrom<usize>) -> Drain<Member> {
-        self.members.drain(range)
-    }
+    // fn drain_pop(&mut self, range: RangeFrom<usize>) -> Drain<Member> {
+    //     self.members.drain(range)
+    // }
 
     pub fn sort_members(&mut self, target: &Member){
-        self.members.sort_by_key(|m| m.fitness(*target))    
+        self.members.sort_by_key(|m| m.fitness(*target));   
+        self.fitness_sorted = true;
     }
    
    
@@ -54,8 +59,9 @@ impl Population {
         child
     }
 
-    pub fn repopulate(&mut self, difference: usize, mutation_rate: f32, mut rng: &mut ThreadRng) {
-        
+    fn repopulate(&mut self, difference: usize, mutation_rate: f32, mut rng: &mut ThreadRng) {
+        self.fitness_sorted = false;
+
         (0..difference)
             .for_each(|_| {
                 let m1 = self.members.choose(&mut rng).unwrap();
@@ -69,4 +75,19 @@ impl Population {
 
     }
 
+    pub fn step_generation(&mut self, size: usize, half: usize, mutation_rate: f32, rng: &mut ThreadRng, target: &Member) {
+        self.members.drain(half..);
+        self.repopulate(size-half, mutation_rate, rng);
+        self.sort_members(target);
+
+    }
+
+    
+    pub fn best(&self) -> Result<&Member, &str>{
+        if self.fitness_sorted {
+            Ok(&self.members[0])
+        }else{
+            Err("Unsorted population, cannot retrieve best")
+        }
+    }
 }
